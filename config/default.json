@@ -1,0 +1,30 @@
+{
+    "email": {
+        "smtp": {
+            "server": "smtp.163.com",
+            "port": 25,
+            "ssl": true,
+            "username": "magicgao2021@163.com",
+            "password": "TZSGmZSY2eCYYAzL"
+        },
+        "pop3": {
+            "server": "pop.163.com",
+            "port": 110,
+            "ssl": true,
+            "username": "magicgao2021@163.com",
+            "password": "TZSGmZSY2eCYYAzL"
+        },
+        "sender": "magicgao2021@163.com",
+        "recipients": [ "2350309233@qq.com"],
+        "subject": "星闪行业日报",
+        "daily_report_time": "09:00"
+    },
+    "monitor": {
+        "keywords": ["星闪技术", "星闪应用", "星闪市场"],
+        "sources": ["baidu", "sogou"],
+        "storage": {
+            "keep_days": 30,
+            "max_emails": 100
+        }
+    }
+}
