@@ -17,7 +17,7 @@ class Scheduler:
         schedule.every().day.at(time_str).do(job_func)
         self.logger.info(f"已添加每日任务，执行时间: {time_str}")
 
-    def add_hourly_job(self, minute=0, job_func):
+    def add_hourly_job(self, job_func, minute=0):
         """添加每小时定时任务"""
         schedule.every().hour.at(f":{minute:02d}").do(job_func)
         self.logger.info(f"已添加每小时任务，在 {minute} 分执行")

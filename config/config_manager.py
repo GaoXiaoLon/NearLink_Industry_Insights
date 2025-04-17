@@ -2,9 +2,9 @@ import json
 import os
 from pathlib import Path
 
-
 class ConfigManager:
-    def __init__(self, config_file="config/default.json"):
+    def __init__(self, config_file="default.json"):
+        # 确保从config目录加载
         self.config_file = Path(__file__).parent / config_file
         self.config = self._load_config()
 

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from ..config.config_manager import ConfigManager
-from ..monitor import SparkIndustryMonitor
+from config.config_manager import ConfigManager  # 改为绝对导入
+from monitor.monitor import SparkIndustryMonitor
 from .config_panel import ConfigPanel
 from .log_panel import LogPanel
 import threading
@@ -139,16 +139,23 @@ class SparkMonitorApp:
                 messagebox.showwarning("警告", "邮件配置未设置")
                 return
 
-            email_sender = EmailSender(config)
-            test_html = "<h1>星闪行业监测系统测试邮件</h1><p>这是一封测试邮件，用于验证邮件发送功能是否正常。</p>"
+            # 使用线程来异步发送邮件
+            def send_email_in_thread():
+                from email_sender import EmailSender  # 确保正确引用了 EmailSender
+                email_sender = EmailSender(config)
+                test_html = "<h1>星闪行业监测系统测试邮件</h1><p>这是一封测试邮件，用于验证邮件发送功能是否正常。</p>"
 
-            success = email_sender.send(test_html)
-            if success:
-                messagebox.showinfo("成功", "测试邮件发送成功")
-                self.logger.info("测试邮件发送成功")
-            else:
-                messagebox.showerror("失败", "测试邮件发送失败")
-                self.logger.error("测试邮件发送失败")
+                success = email_sender.send(test_html)
+                if success:
+                    messagebox.showinfo("成功", "测试邮件发送成功")
+                    self.logger.info("测试邮件发送成功")
+                else:
+                    messagebox.showerror("失败", "测试邮件发送失败")
+                    self.logger.error("测试邮件发送失败")
+
+            # 创建并启动线程
+            threading.Thread(target=send_email_in_thread, daemon=True).start()
+
         except Exception as e:
             messagebox.showerror("错误", f"发送测试邮件失败: {str(e)}")
             self.logger.error(f"发送测试邮件失败: {str(e)}")

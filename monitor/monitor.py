@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -104,6 +105,18 @@ class SparkIndustryMonitor:
 
             report = self.report_generator.generate(articles)
             self.logger.info(f"报告生成成功，共 {len(articles)} 条数据")
+
+            # 保存报告到文件
+            output_dir = 'out/'
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+
+            report_file_path = os.path.join(output_dir, 'Report.txt')
+            with open(report_file_path, 'w', encoding='utf-8') as file:
+                file.write(report)
+
+            self.logger.info(f"报告已保存到 {report_file_path}")
+
             return report
         except Exception as e:
             self.logger.error(f"生成报告失败: {str(e)}")
@@ -111,13 +124,16 @@ class SparkIndustryMonitor:
 
     def send_daily_report(self):
         """发送每日报告"""
-        report = self.generate_daily_report()
-        if report:
-            success = self.email_sender.send(report)
-            if success:
-                self.logger.info("邮件发送成功")
-            else:
-                self.logger.error("邮件发送失败")
+        try:
+            report = self.generate_daily_report()
+            if report:
+                success = self.email_sender.send(report)
+                if success:
+                    self.logger.info("邮件发送成功")
+                else:
+                    self.logger.error("邮件发送失败")
+        except Exception as e:
+            self.logger.error(f"发送每日报告时发生异常: {str(e)}")
 
     def start_service(self):
         """启动监测服务"""
