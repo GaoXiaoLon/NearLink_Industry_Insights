@@ -2,11 +2,11 @@
     "email": {
         "smtp_server": "smtp.163.com",
         "smtp_port": 465,
-        "username": "magicgao2021@163.com",
-        "password": "PVUc8x2mbQjxpYMK",
-        "sender": "magicgao2021@163.com",
+        "username": "xxxx1@163.com",
+        "password": "授权码",
+        "sender": "xxxx1@163.com",
         "receivers": [
-            "2350309233@qq.com"
+            "需要发送到的邮箱@example.com"
         ]
     },
     "monitor": {
