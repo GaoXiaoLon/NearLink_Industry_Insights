@@ -1,33 +1,63 @@
 import json
 import os
-from pathlib import Path
+from typing import Dict, Any
 
 class ConfigManager:
-    def __init__(self, config_file="default.json"):
-        # 确保从config目录加载
-        self.config_file = Path(__file__).parent / config_file
-        self.config = self._load_config()
+    def __init__(self, config_path: str = "config/default.json"):
+        self.config_path = config_path
+        self.config: Dict[str, Any] = {}
+        self.load_config()
 
-    def _load_config(self):
+    def load_config(self) -> None:
         """加载配置文件"""
-        if not self.config_file.exists():
-            raise FileNotFoundError(f"配置文件 {self.config_file} 不存在")
+        try:
+            with open(self.config_path, 'r', encoding='utf-8') as f:
+                self.config = json.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"配置文件 {self.config_path} 不存在")
+        except json.JSONDecodeError:
+            raise ValueError(f"配置文件 {self.config_path} 格式错误")
 
-        with open(self.config_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
+    def save_config(self) -> None:
+        """保存配置到文件"""
+        try:
+            with open(self.config_path, 'w', encoding='utf-8') as f:
+                json.dump(self.config, f, ensure_ascii=False, indent=4)
+        except Exception as e:
+            raise Exception(f"保存配置文件失败: {str(e)}")
 
-    def get_config(self, section=None):
-        """获取配置"""
-        if section:
-            return self.config.get(section, {})
-        return self.config
+    def get(self, key: str, default: Any = None) -> Any:
+        """获取配置项，支持点号分隔的路径"""
+        if '.' not in key:
+            return self.config.get(key, default)
+        
+        # 处理点号分隔的路径
+        parts = key.split('.')
+        value = self.config
+        for part in parts:
+            if not isinstance(value, dict):
+                return default
+            value = value.get(part, default)
+        return value
 
-    def update_config(self, new_config, section=None):
+    def set(self, key: str, value: Any) -> None:
+        """设置配置项，支持点号分隔的路径"""
+        if '.' not in key:
+            self.config[key] = value
+            self.save_config()
+            return
+        
+        # 处理点号分隔的路径
+        parts = key.split('.')
+        current = self.config
+        for part in parts[:-1]:
+            if part not in current:
+                current[part] = {}
+            current = current[part]
+        current[parts[-1]] = value
+        self.save_config()
+
+    def update(self, new_config: Dict[str, Any]) -> None:
         """更新配置"""
-        if section:
-            self.config[section] = new_config
-        else:
-            self.config = new_config
-
-        with open(self.config_file, 'w', encoding='utf-8') as f:
-            json.dump(self.config, f, indent=4, ensure_ascii=False)
+        self.config.update(new_config)
+        self.save_config()

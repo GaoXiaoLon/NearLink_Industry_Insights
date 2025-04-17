@@ -1,52 +1,63 @@
-# utils/scheduler.py
-
 import schedule
 import time
 import threading
-from utils.logger import get_logger
-
+from typing import Callable, Dict, Any, Optional
+from datetime import datetime
 
 class Scheduler:
     def __init__(self):
-        self.logger = get_logger("scheduler")
-        self._running = False
-        self._thread = None
+        self.jobs: Dict[str, schedule.Job] = {}
+        self.running = False
+        self.thread = None
 
-    def add_daily_job(self, time_str, job_func):
-        """添加每日定时任务"""
-        schedule.every().day.at(time_str).do(job_func)
-        self.logger.info(f"已添加每日任务，执行时间: {time_str}")
+    def add_job(self, 
+                job_id: str, 
+                func: Callable, 
+                hour: int, 
+                minute: int, 
+                *args: Any, 
+                **kwargs: Any) -> None:
+        """添加定时任务"""
+        if job_id in self.jobs:
+            self.remove_job(job_id)
+        
+        job = schedule.every().day.at(f"{hour:02d}:{minute:02d}").do(func, *args, **kwargs)
+        self.jobs[job_id] = job
 
-    def add_hourly_job(self, job_func, minute=0):
-        """添加每小时定时任务"""
-        schedule.every().hour.at(f":{minute:02d}").do(job_func)
-        self.logger.info(f"已添加每小时任务，在 {minute} 分执行")
+    def remove_job(self, job_id: str) -> None:
+        """移除定时任务"""
+        if job_id in self.jobs:
+            schedule.cancel_job(self.jobs[job_id])
+            del self.jobs[job_id]
 
-    def start(self):
-        """启动调度器"""
-        if self._running:
-            self.logger.warning("调度器已在运行中")
-            return
+    def get_next_run(self, job_id: str) -> Optional[datetime]:
+        """获取任务下次运行时间"""
+        if job_id in self.jobs:
+            return self.jobs[job_id].next_run
+        return None
 
-        self._running = True
-        self._thread = threading.Thread(target=self._run, daemon=True)
-        self._thread.start()
-        self.logger.info("调度器已启动")
-
-    def stop(self):
-        """停止调度器"""
-        self._running = False
-        if self._thread and self._thread.is_alive():
-            self._thread.join(timeout=1)
-        self.logger.info("调度器已停止")
-
-    def _run(self):
-        """调度器运行循环"""
-        while self._running:
+    def _run_scheduler(self) -> None:
+        """运行调度器"""
+        while self.running:
             schedule.run_pending()
             time.sleep(1)
 
-    def clear(self):
+    def start(self) -> None:
+        """启动调度器"""
+        if not self.running:
+            self.running = True
+            self.thread = threading.Thread(target=self._run_scheduler)
+            self.thread.daemon = True
+            self.thread.start()
+
+    def stop(self) -> None:
+        """停止调度器"""
+        self.running = False
+        if self.thread:
+            self.thread.join()
+            self.thread = None
+
+    def clear(self) -> None:
         """清除所有任务"""
         schedule.clear()
-        self.logger.info("已清除所有定时任务")
+        self.jobs.clear()

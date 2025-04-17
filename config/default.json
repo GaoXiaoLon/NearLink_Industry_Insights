@@ -5,20 +5,41 @@
         "username": "magicgao2021@163.com",
         "password": "PVUc8x2mbQjxpYMK",
         "sender": "magicgao2021@163.com",
-        "recipient": "2350309233@qq.com",
-        "subject": "星闪行业日报"
+        "receivers": [
+            "2350309233@qq.com"
+        ]
     },
     "monitor": {
-        "schedule_time": "11:51",
+        "schedule": {
+            "hour": 19,
+            "minute": 2,
+            "frequency": "daily"
+        },
         "keywords": [
-            "星闪技术",
-            "星闪应用",
-            "星闪市场"
+            "星闪行业应用"
         ],
         "sources": [
-            "baidu",
-            "sogou",
-            "bing"
+            "https://www.36kr.com/",
+            "https://www.tmtpost.com/",
+            "https://www.huxiu.com/",
+            "https://www.jiemian.com/",
+            "https://www.yicai.com/",
+            "https://www.leiphone.com/",
+            "https://www.zhidx.com/",
+            "https://www.elecfans.com/",
+            "https://www.eefocus.com/",
+            "http://www.cena.com.cn/",
+            "http://www.cww.net.cn/",
+            "http://www.ccidcom.com/",
+            "https://www.eeworld.com.cn/",
+            "https://www.eet-china.com/"
         ]
+    },
+    "gui": {
+        "theme": "light",
+        "window_size": {
+            "width": 800,
+            "height": 600
+        }
     }
 }
